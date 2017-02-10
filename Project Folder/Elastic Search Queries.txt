@@ -1,0 +1,176 @@
+Query for Index Creation:
+curl -XPUT "http://localhost:9200/bonusindex" -d'
+{
+    "settings" : {
+        "number_of_shards" : 5,
+        "number_of_replicas" : 1
+    },
+"mappings": {
+               "stops": {
+                  "properties": {
+                     "log": {
+                        "type": "string"
+                        
+                     },
+                     "stop_id": {
+                        "type": "integer"
+                        
+                     },
+                     "name_stop": {
+                        "type": "string"
+                        
+                     },
+                     "lat": {
+                        "type": "string"
+                        
+                     }
+                  }
+               },
+               "trips": {
+                  "properties": {
+                     "trip_id": {
+                        "type": "string"
+                        
+                     },
+                     "route_id": {
+                        "type": "string"
+                        
+                     },
+                     "service_id": {
+                        "type": "string"
+                        
+                     },
+                     "shape_id": {
+                        "type": "string"
+                        
+                     },
+                     "trip_headsign": {
+                        "type": "string"
+                        
+                     },
+                     "block_id": {
+                        "type": "string"
+                        
+                     }
+                  }
+               },
+            
+"stoptimes": {
+                  "properties": {
+                     "trip_id": {
+                        "type": "string"
+                     },
+                     "arrival_time": {
+                        "type": "date",
+                        "format":"HH:mm:ss"
+                     },
+                     "stop_sequence": {
+                        "type": "string"
+                     },
+                     "stop_id": {
+                        "type": "integer"
+                   
+                     },
+                     "departure_time": {
+                        "type": "date",
+                        "format":"HH:mm:ss"
+                     }
+                  }
+               }
+}
+}'
+
+Query for uploading data:
+
+curl -XPOST localhost:9200/stops/_bulk?pretty --data-binary @/home/ubuntu/stops.json
+
+Query 1
+
+Find all buses for a particular Bus Stop
+
+curl -XGET localhost:9200/keshav/stops/_search?pretty=true -d '
+{ 
+    "query":{
+        "query_string":{
+            "query":"\" Ferry Stop - Woodside\"", "fields":["name_stop"]
+        }
+    }
+}'
+curl -XGET localhost:9200/keshav/stoptimes/_search?pretty=true -d '
+{ 
+    "query":{
+        "query_string":{
+            "query":"\"1075\"", "fields":["stop_id"]
+        }
+    }
+}'
+curl -XGET localhost:9200/keshav/trips/_search?pretty=true -d '
+{ 
+    "query":{
+        "query_string":{
+            "query": "\" 5808024-2012_05M-12MferWD-Weekday-00\"", "fields":["trip_id"]
+        }
+    }
+}'
+
+Query 2
+
+Find buses between two time ranges
+
+curl -XGET localhost:9200/keshav/stoptimes/_search?pretty=true -d '
+{
+  "query": {
+    "range": {
+      "arrival_time": {
+        "gte": "15:00:00" ,
+        "lte": "20:00:00"
+      }
+    }
+  }
+}'
+
+curl -XGET localhost:9200/keshav/trips/_search?pretty=true -d '
+{ 
+    "query":{
+        "query_string":{
+            "query": "\"6518384-2012_05M-1205BRsu-Sunday-02\"", "fields":["trip_id"]
+        }
+    }
+}'
+
+Query 3
+
+Find route information of a particular bus on a particular route
+
+curl -XGET localhost:9200/keshav/stops/_search?pretty=true -d '
+{ 
+    "query":{
+        "query_string":{
+            "query":"\"akerley Blvd after Burnside Dr\"", "fields":["name_stop"]
+        }
+    }
+}'
+curl -XGET localhost:9200/keshav/stoptimes/_search?pretty=true -d '
+{ 
+    "query":{
+        "query_string":{
+            "query":"\"6000\"", "fields":["stop_id"]
+        }
+    }
+}'
+curl -XGET localhost:9200/keshav/trips/_search?pretty=true -d '
+{ 
+    "query":{
+        "query_string":{
+            "query": "\"6516065-2012_05M-1205BRsa-Saturday-02\"", "fields":["trip_id"]
+        }
+    }
+}'
+curl -XGET localhost:9200/keshav/trips/_search?pretty=true -d '
+{ 
+    "query":{
+        "query_string":{
+            "query": "\"52 CROSSTOWN TO BURNSIDE\"", "fields":["trip_headsign"]
+        }
+    }
+}'

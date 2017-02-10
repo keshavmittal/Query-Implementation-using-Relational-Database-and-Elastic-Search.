@@ -1,0 +1,20 @@
+Query 1:
+Find all buses for a particular Bus Stop
+
+select distinct trip_headsign from dbo.trips where trip_id IN(
+select trip_id from dbo.stoptimes where stop_id IN(
+select stop_id from dbo.stops where name_stop = 'leeds St [westbound] before Rosemeade Ave'))
+
+Query 2:
+Find buses between two time ranges
+
+select distinct trip_headsign from dbo.trips where trip_id IN(
+select trip_id from dbo.stoptimes where arrival_time between '15:00:00' AND '20:00:00' )
+
+Query 3:
+Find route information of a particular bus on a particular route
+
+select distinct route_id from dbo.trips where trip_headsign IN(
+select distinct trip_headsign from dbo.trips where trip_id IN(
+select trip_id from dbo.stoptimes where stop_id IN(
+select stop_id from dbo.stops where name_stop = 'leeds St [westbound] before Rosemeade Ave')))
